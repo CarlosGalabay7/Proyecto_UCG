@@ -343,3 +343,5 @@ Además, Streamlit permitió desarrollar una solución visual, modular e interac
 - Streamlit Documentation. https://docs.streamlit.io/
 
 - Scikit-learn Documentation. https://scikit-learn.org/
+
+- Mlxtend Documentation. http://rasbt.github.io/mlxtend/
