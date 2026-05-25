@@ -11,7 +11,7 @@ from utils.preprocessing import DatasetFormatError, clean_retail_data, normalize
 
 
 SUPPORTED_EXTENSIONS = {".csv", ".xlsx", ".xls"}
-DEFAULT_DATA_PATH = Path("data") / "online_retail_II.xlsx"
+DEFAULT_DATA_PATH = Path("data") / "online_retail_II.csv"
 EXPECTED_COLUMNS_MESSAGE = (
     "El archivo cargado no tiene el formato necesario para generar los dashboards. "
     "Carga un archivo Online Retail II con estas columnas: Invoice o InvoiceNo, "
@@ -87,7 +87,7 @@ def get_retail_data(required: bool = True) -> pd.DataFrame | None:
             st.rerun()
 
     use_local = st.sidebar.checkbox(
-        "Usar data/online_retail_II.xlsx",
+        "Usar data/online_retail_II.csv",
         value=False,
         help="Disponible solo si el archivo existe dentro del proyecto.",
     )
