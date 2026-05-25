@@ -20,10 +20,11 @@ Aplicación web multipágina desarrollada con **Streamlit** para análisis de ve
 ![Inicio](assets/screenshots/home.png)
 
 ### 📊 KPIs generales
-![KPIs](assets/screenshots/kpis.png)
+![KPIs](assets/screenshots/KPIs.png)
 
 ### 📈 Análisis de ventas
-![Ventas](assets/screenshots/sales.png)
+![Ventas](assets/screenshots/sales1.png)
+![Ventas](assets/screenshots/sales2.png)
 
 ### 👥 Segmentación de clientes
 ![Clientes](assets/screenshots/customers.png)
