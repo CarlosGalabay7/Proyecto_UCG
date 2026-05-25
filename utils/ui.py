@@ -16,12 +16,20 @@ def apply_global_styles() -> None:
 
         section[data-testid="stSidebar"] {
             border-right: 1px solid #e5e7eb;
+            color: var(--text-color);
         }
 
         section[data-testid="stSidebar"] h1,
         section[data-testid="stSidebar"] h2,
         section[data-testid="stSidebar"] h3 {
-            color: #111827;
+            color: var(--text-color);
+        }
+
+        section[data-testid="stSidebar"] label,
+        section[data-testid="stSidebar"] p,
+        section[data-testid="stSidebar"] span,
+        section[data-testid="stSidebar"] div[data-testid="stMarkdownContainer"] {
+            color: var(--text-color);
         }
 
         div[data-testid="stMetric"] {
