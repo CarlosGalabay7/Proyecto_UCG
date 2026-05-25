@@ -37,6 +37,8 @@ def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
     """Normalize known Online Retail column variants to one shared schema."""
     normalized = df.copy()
     normalized.columns = [str(column).strip() for column in normalized.columns]
+
+    # Unifica nombres equivalentes del dataset para que el resto de la app use un solo esquema.
     normalized = normalized.rename(columns=COLUMN_ALIASES)
 
     missing_columns = set(REQUIRED_COLUMNS).difference(normalized.columns)
@@ -51,6 +53,7 @@ def clean_retail_data(df: pd.DataFrame) -> pd.DataFrame:
     """Clean Online Retail data and create the Revenue field."""
     cleaned = df.copy()
 
+    # Estandariza tipos antes de filtrar; los errores se convierten en nulos y se eliminan abajo.
     cleaned["Invoice"] = cleaned["Invoice"].astype(str).str.strip()
     cleaned["StockCode"] = cleaned["StockCode"].astype(str).str.strip()
     cleaned["Description"] = cleaned["Description"].astype(str).str.strip()
@@ -59,12 +62,14 @@ def clean_retail_data(df: pd.DataFrame) -> pd.DataFrame:
     cleaned["Quantity"] = pd.to_numeric(cleaned["Quantity"], errors="coerce")
     cleaned["Price"] = pd.to_numeric(cleaned["Price"], errors="coerce")
 
+    # Conserva solo ventas validas: sin anulaciones, sin cantidades/precios negativos y con cliente.
     cleaned = cleaned.dropna(subset=["Customer ID", "InvoiceDate", "Quantity", "Price"])
     cleaned = cleaned[~cleaned["Invoice"].str.upper().str.startswith("C")]
     cleaned = cleaned[cleaned["Quantity"] > 0]
     cleaned = cleaned[cleaned["Price"] > 0]
     cleaned = cleaned[cleaned["Description"].ne("")]
 
+    # Crea campos derivados que alimentan KPIs, graficos y analisis temporal.
     cleaned["Customer ID"] = cleaned["Customer ID"].astype(float).astype(int).astype(str)
     cleaned["Revenue"] = cleaned["Quantity"] * cleaned["Price"]
     cleaned["InvoiceMonth"] = cleaned["InvoiceDate"].dt.to_period("M").astype(str)

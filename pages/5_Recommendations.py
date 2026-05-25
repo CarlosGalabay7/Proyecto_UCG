@@ -21,6 +21,7 @@ with col1:
 with col2:
     min_confidence = st.slider("Confianza minima", 0.10, 0.90, 0.30, 0.05)
 
+# Los parametros controlan cuan frecuentes y confiables deben ser las reglas sugeridas.
 with st.spinner("Calculando reglas de asociacion..."):
     rules = generate_association_rules(
         df,
@@ -47,6 +48,8 @@ tab_oportunidades, tab_reglas = st.tabs(["Oportunidades", "Reglas de asociacion"
 with tab_oportunidades:
     st.subheader("Mejores oportunidades")
     top_rules = reglas_asociacion.head(10)
+
+    # Presenta las mejores reglas como acciones de venta cruzada faciles de interpretar.
     for _, row in top_rules.iterrows():
         st.markdown(
             f"- Si el cliente compra **{row['Productos base']}**, recomendar **{row['Productos recomendados']}** "

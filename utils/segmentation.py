@@ -7,6 +7,7 @@ from sklearn.preprocessing import StandardScaler
 
 def build_rfm_table(df: pd.DataFrame) -> pd.DataFrame:
     """Build customer-level Recency, Frequency and Monetary metrics."""
+    # Usa el dia posterior a la ultima compra como referencia para medir recencia.
     reference_date = df["InvoiceDate"].max() + pd.Timedelta(days=1)
     rfm = (
         df.groupby("Customer ID")
@@ -23,6 +24,8 @@ def build_rfm_table(df: pd.DataFrame) -> pd.DataFrame:
 def segment_customers(rfm: pd.DataFrame, n_clusters: int = 4) -> pd.DataFrame:
     """Cluster customers with KMeans and assign business-friendly labels."""
     segmented = rfm.copy()
+
+    # Evita pedir mas clusters que clientes disponibles.
     cluster_count = min(n_clusters, len(segmented))
 
     if cluster_count < 2:
@@ -31,6 +34,8 @@ def segment_customers(rfm: pd.DataFrame, n_clusters: int = 4) -> pd.DataFrame:
         return segmented
 
     features = segmented[["Recency", "Frequency", "Monetary"]]
+
+    # Escala RFM para que KMeans no quede dominado por la variable monetaria.
     scaled_features = StandardScaler().fit_transform(features)
 
     model = KMeans(n_clusters=cluster_count, random_state=42, n_init=10)
@@ -47,6 +52,7 @@ def segment_customers(rfm: pd.DataFrame, n_clusters: int = 4) -> pd.DataFrame:
         + profile["Recency"].rank(ascending=False)
     )
 
+    # Ordena clusters por valor comercial: mas frecuencia/monetario y menor recencia es mejor.
     ordered_clusters = profile.sort_values("Score", ascending=False)["Cluster"].tolist()
     label_pool = ["Premium", "Leales", "En riesgo", "Inactivos"]
     cluster_labels = {

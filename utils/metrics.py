@@ -5,6 +5,7 @@ import pandas as pd
 
 def calculate_kpis(df: pd.DataFrame) -> dict[str, float | int]:
     """Calculate the main dashboard KPIs."""
+    # Resume el dataset limpio en indicadores ejecutivos reutilizables en la pagina de KPIs.
     total_sales = float(df["Revenue"].sum())
     total_orders = int(df["Invoice"].nunique())
     total_customers = int(df["Customer ID"].nunique())

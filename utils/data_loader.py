@@ -53,6 +53,7 @@ def load_local_data(path: str | Path = DEFAULT_DATA_PATH) -> pd.DataFrame:
 @st.cache_data(show_spinner="Limpiando dataset...")
 def prepare_retail_data(raw_df: pd.DataFrame) -> pd.DataFrame:
     """Normalize and clean the retail dataset."""
+    # Mantiene separada la lectura del archivo de la preparacion de datos del negocio.
     normalized = normalize_columns(raw_df)
     return clean_retail_data(normalized)
 
@@ -66,6 +67,7 @@ def get_retail_data(required: bool = True) -> pd.DataFrame | None:
     if "retail_file_bytes" not in st.session_state:
         st.session_state.retail_file_bytes = None
 
+    # Guarda el archivo en session_state para que las paginas multipagina compartan la misma carga.
     uploaded_file: BinaryIO | None = st.sidebar.file_uploader(
         "Archivo Online Retail II",
         type=["csv", "xlsx", "xls"],
@@ -95,6 +97,8 @@ def get_retail_data(required: bool = True) -> pd.DataFrame | None:
             file_name = st.session_state.retail_file_name
             file_bytes = st.session_state.retail_file_bytes
             extension = Path(file_name).suffix.lower()
+
+            # Valida la extension antes de intentar leer bytes como CSV o Excel.
             if extension not in SUPPORTED_EXTENSIONS:
                 st.sidebar.error("Formato no soportado. Usa CSV, XLSX o XLS.")
                 if required:

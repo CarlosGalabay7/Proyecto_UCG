@@ -11,6 +11,7 @@ COLOR_SEQUENCE = ["#2563eb", "#16a34a", "#f59e0b", "#dc2626", "#7c3aed", "#0891b
 
 def style_figure(fig: go.Figure) -> go.Figure:
     """Apply a consistent dashboard style to Plotly charts."""
+    # Centraliza el estilo visual para que todos los graficos mantengan la misma apariencia.
     fig.update_layout(
         margin=dict(l=20, r=20, t=60, b=35),
         paper_bgcolor="#ffffff",
@@ -46,6 +47,7 @@ def style_figure(fig: go.Figure) -> go.Figure:
 
 
 def sales_over_time(df: pd.DataFrame) -> go.Figure:
+    # Agrega ingresos diarios para observar tendencia y estacionalidad de ventas.
     daily_sales = (
         df.groupby(df["InvoiceDate"].dt.date, as_index=False)["Revenue"]
         .sum()
@@ -98,6 +100,7 @@ def top_countries_by_revenue(df: pd.DataFrame, top_n: int = 10) -> go.Figure:
 
 
 def revenue_distribution(df: pd.DataFrame) -> go.Figure:
+    # Calcula el valor total por factura para analizar la distribucion del ticket.
     order_revenue = df.groupby("Invoice", as_index=False)["Revenue"].sum()
     order_revenue = order_revenue.rename(columns={"Revenue": "Ingresos"})
     fig = px.histogram(order_revenue, x="Ingresos", nbins=60, template=TEMPLATE)
@@ -106,6 +109,7 @@ def revenue_distribution(df: pd.DataFrame) -> go.Figure:
 
 
 def rfm_cluster_scatter(rfm: pd.DataFrame) -> go.Figure:
+    # Cruza frecuencia y valor monetario para visualizar la separacion de segmentos.
     fig = px.scatter(
         rfm,
         x="Frequency",

@@ -21,6 +21,7 @@ rfm = build_rfm_table(df)
 n_clusters = st.slider("Numero de segmentos", min_value=2, max_value=6, value=4)
 segmented = segment_customers(rfm, n_clusters=n_clusters)
 
+# Resume cada segmento para convertir los clusters tecnicos en lectura comercial.
 segment_summary = (
     segmented.groupby("Segment", as_index=False)
     .agg(

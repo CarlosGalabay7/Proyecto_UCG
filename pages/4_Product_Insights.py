@@ -17,6 +17,7 @@ top_navigation("Productos")
 st.title("Analisis de productos")
 st.caption("Productos lideres por volumen, ingresos y frecuencia de compra.")
 
+# Consolida indicadores por producto para comparar volumen, ingresos, ordenes y clientes.
 resumen_productos = (
     df.groupby(["StockCode", "Description"], as_index=False)
     .agg(
@@ -61,6 +62,8 @@ with tab_graficos:
         st.plotly_chart(style_figure(fig), use_container_width=True)
 
     st.subheader("Insights comerciales")
+
+    # Extrae los lideres principales para mostrar conclusiones rapidas sin revisar toda la tabla.
     best_product = resumen_productos.iloc[0]
     most_sold = resumen_productos.sort_values("Cantidad", ascending=False).iloc[0]
     most_frequent = resumen_productos.sort_values("Ordenes", ascending=False).iloc[0]
