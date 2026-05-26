@@ -12,6 +12,10 @@ from utils.preprocessing import DatasetFormatError, clean_retail_data, normalize
 
 SUPPORTED_EXTENSIONS = {".csv", ".xlsx", ".xls"}
 DEFAULT_DATA_PATH = Path("data") / "online_retail_II.csv"
+FILE_NAME_STATE_KEY = "retail_file_name"
+FILE_BYTES_STATE_KEY = "retail_file_bytes"
+USE_LOCAL_STATE_KEY = "retail_use_local_file"
+USE_LOCAL_WIDGET_KEY = "retail_use_local_file_widget"
 EXPECTED_COLUMNS_MESSAGE = (
     "El archivo cargado no tiene el formato necesario para generar los dashboards. "
     "Carga un archivo Online Retail II con estas columnas: Invoice o InvoiceNo, "
@@ -58,14 +62,22 @@ def prepare_retail_data(raw_df: pd.DataFrame) -> pd.DataFrame:
     return clean_retail_data(normalized)
 
 
+def sync_local_file_choice() -> None:
+    """Persist the local-file checkbox outside the widget state."""
+    st.session_state[USE_LOCAL_STATE_KEY] = st.session_state[USE_LOCAL_WIDGET_KEY]
+
+
 def get_retail_data(required: bool = True) -> pd.DataFrame | None:
     """Render the sidebar uploader and return a clean retail dataframe."""
     st.sidebar.subheader("Archivo")
 
-    if "retail_file_name" not in st.session_state:
-        st.session_state.retail_file_name = None
-    if "retail_file_bytes" not in st.session_state:
-        st.session_state.retail_file_bytes = None
+    if FILE_NAME_STATE_KEY not in st.session_state:
+        st.session_state[FILE_NAME_STATE_KEY] = None
+    if FILE_BYTES_STATE_KEY not in st.session_state:
+        st.session_state[FILE_BYTES_STATE_KEY] = None
+    if USE_LOCAL_STATE_KEY not in st.session_state:
+        st.session_state[USE_LOCAL_STATE_KEY] = False
+    st.session_state[USE_LOCAL_WIDGET_KEY] = st.session_state[USE_LOCAL_STATE_KEY]
 
     # Guarda el archivo en session_state para que las paginas multipagina compartan la misma carga.
     uploaded_file: BinaryIO | None = st.sidebar.file_uploader(
@@ -76,26 +88,30 @@ def get_retail_data(required: bool = True) -> pd.DataFrame | None:
     )
 
     if uploaded_file is not None:
-        st.session_state.retail_file_name = uploaded_file.name
-        st.session_state.retail_file_bytes = uploaded_file.getvalue()
+        st.session_state[FILE_NAME_STATE_KEY] = uploaded_file.name
+        st.session_state[FILE_BYTES_STATE_KEY] = uploaded_file.getvalue()
+        st.session_state[USE_LOCAL_STATE_KEY] = False
+        st.session_state[USE_LOCAL_WIDGET_KEY] = False
 
-    if st.session_state.retail_file_name:
-        st.sidebar.success(f"Archivo activo: {st.session_state.retail_file_name}")
+    if st.session_state[FILE_NAME_STATE_KEY]:
+        st.sidebar.success(f"Archivo activo: {st.session_state[FILE_NAME_STATE_KEY]}")
         if st.sidebar.button("Quitar archivo cargado"):
-            st.session_state.retail_file_name = None
-            st.session_state.retail_file_bytes = None
+            st.session_state[FILE_NAME_STATE_KEY] = None
+            st.session_state[FILE_BYTES_STATE_KEY] = None
             st.rerun()
 
-    use_local = st.sidebar.checkbox(
+    st.sidebar.checkbox(
         "Usar data/online_retail_II.csv",
-        value=False,
         help="Disponible solo si el archivo existe dentro del proyecto.",
+        key=USE_LOCAL_WIDGET_KEY,
+        on_change=sync_local_file_choice,
     )
+    use_local = st.session_state[USE_LOCAL_STATE_KEY]
 
     try:
-        if st.session_state.retail_file_name and st.session_state.retail_file_bytes:
-            file_name = st.session_state.retail_file_name
-            file_bytes = st.session_state.retail_file_bytes
+        if st.session_state[FILE_NAME_STATE_KEY] and st.session_state[FILE_BYTES_STATE_KEY]:
+            file_name = st.session_state[FILE_NAME_STATE_KEY]
+            file_bytes = st.session_state[FILE_BYTES_STATE_KEY]
             extension = Path(file_name).suffix.lower()
 
             # Valida la extension antes de intentar leer bytes como CSV o Excel.
@@ -115,8 +131,8 @@ def get_retail_data(required: bool = True) -> pd.DataFrame | None:
     except DatasetFormatError as exc:
         st.error(EXPECTED_COLUMNS_MESSAGE)
         st.warning(str(exc))
-        st.session_state.retail_file_name = None
-        st.session_state.retail_file_bytes = None
+        st.session_state[FILE_NAME_STATE_KEY] = None
+        st.session_state[FILE_BYTES_STATE_KEY] = None
         if required:
             st.stop()
         return None
